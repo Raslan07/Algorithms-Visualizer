@@ -1,34 +1,37 @@
 def quick(arr):
-
     arr = arr.copy()
-
     comparisons = 0
     swaps = 0
 
-    def quick_sort(low, high):
+    yield from _quick_sort(arr, 0, len(arr) - 1, comparisons, swaps)
+    yield arr, comparisons, swaps, ()
 
-        nonlocal comparisons, swaps
 
-        if low >= high:
-            return
+def _quick_sort(arr, low, high, comparisons, swaps):
+    if low < high:
+        yield from _partition(arr, low, high, comparisons, swaps)
 
-        pivot = arr[high]
-        i = low
+        # get the pivot index by re-running partition logic (simpler: track it)
+        pivot_index = arr.index(sorted(arr[low:high+1])[high - low // 2])
 
-        for j in range(low, high):
+        yield from _quick_sort(arr, low, pivot_index - 1, comparisons, swaps)
+        yield from _quick_sort(arr, pivot_index + 1, high, comparisons, swaps)
 
-            comparisons += 1
 
-            if arr[j] < pivot:
-                arr[i], arr[j] = arr[j], arr[i]
-                swaps += 1
-                i += 1
+def _partition(arr, low, high, comparisons, swaps):
+    pivot = arr[high]
+    i = low - 1
 
-            yield arr.copy(), comparisons, swaps
+    for j in range(low, high):
+        comparisons += 1
+        yield arr, comparisons, swaps, (j, high)   # ← highlight: current vs pivot
 
-        arr[i], arr[high] = arr[high], arr[i]
+        if arr[j] <= pivot:
+            i += 1
+            arr[i], arr[j] = arr[j], arr[i]
+            swaps += 1
+            yield arr, comparisons, swaps, (i, j)
 
-        yield from quick_sort(low, i - 1)
-        yield from quick_sort(i + 1, high)
-
-    yield from quick_sort(0, len(arr) - 1)
+    arr[i + 1], arr[high] = arr[high], arr[i + 1]
+    swaps += 1
+    yield arr, comparisons, swaps, (i + 1, high)

@@ -9,6 +9,11 @@ from algorithms.merge_sort import merge
 from algorithms.quick_sort import quick
 
 
+# Colors
+COLOR_DEFAULT   = "#4C72B0"   # blue  — normal bars
+COLOR_COMPARING = "#E74C3C"   # red   — bars being compared right now
+
+
 class Visualizer:
 
     def __init__(self):
@@ -40,7 +45,11 @@ class Visualizer:
 
         plt.subplots_adjust(bottom=0.35)
 
-        self.bars = self.ax.bar(range(len(self.array)), self.array)
+        self.bars = self.ax.bar(
+            range(len(self.array)),
+            self.array,
+            color=COLOR_DEFAULT
+        )
 
         self.info_text = self.ax.text(
             0.02, 0.95, "", transform=self.ax.transAxes
@@ -67,11 +76,18 @@ class Visualizer:
     # -----------------------
 
     def update(self, data):
+        # Algorithms now yield 4 values:
+        #   arr           — the current array state
+        #   comparisons   — total comparisons so far
+        #   swaps         — total swaps so far
+        #   comparing     — tuple/list of the two indices being compared right now
+        #                   e.g. (3, 7)  →  bars 3 and 7 turn red
 
-        arr, comparisons, swaps = data
+        arr, comparisons, swaps, comparing = data
 
-        for bar, val in zip(self.bars, arr):
+        for i, (bar, val) in enumerate(zip(self.bars, arr)):
             bar.set_height(val)
+            bar.set_color(COLOR_COMPARING if i in comparing else COLOR_DEFAULT)
 
         self.info_text.set_text(
             f"Comparisons: {comparisons}\n"
@@ -91,7 +107,6 @@ class Visualizer:
 
         self.ax.set_title(f"{name} Sort")
 
-        # recreate animation (THIS FIXES BUTTONS)
         self.ani.event_source.stop()
 
         self.create_animation()
@@ -114,6 +129,7 @@ class Visualizer:
 
         for bar, val in zip(self.bars, self.array):
             bar.set_height(val)
+            bar.set_color(COLOR_DEFAULT)
 
         self.generator = self.algorithms[self.current_algorithm](self.array)
 
@@ -133,38 +149,38 @@ class Visualizer:
 
     def create_controls(self):
 
-        ax_bubble = plt.axes([0.05,0.25,0.15,0.05])
-        ax_insertion = plt.axes([0.25,0.25,0.15,0.05])
-        ax_merge = plt.axes([0.45,0.25,0.15,0.05])
-        ax_quick = plt.axes([0.65,0.25,0.15,0.05])
+        ax_bubble    = plt.axes([0.05, 0.25, 0.15, 0.05])
+        ax_insertion = plt.axes([0.25, 0.25, 0.15, 0.05])
+        ax_merge     = plt.axes([0.45, 0.25, 0.15, 0.05])
+        ax_quick     = plt.axes([0.65, 0.25, 0.15, 0.05])
 
-        ax_pause = plt.axes([0.20,0.15,0.15,0.05])
-        ax_resume = plt.axes([0.40,0.15,0.15,0.05])
-        ax_reset = plt.axes([0.60,0.15,0.15,0.05])
+        ax_pause  = plt.axes([0.20, 0.15, 0.15, 0.05])
+        ax_resume = plt.axes([0.40, 0.15, 0.15, 0.05])
+        ax_reset  = plt.axes([0.60, 0.15, 0.15, 0.05])
 
-        btn_bubble = Button(ax_bubble,"Bubble")
-        btn_insertion = Button(ax_insertion,"Insertion")
-        btn_merge = Button(ax_merge,"Merge")
-        btn_quick = Button(ax_quick,"Quick")
+        self.btn_bubble    = Button(ax_bubble,    "Bubble")
+        self.btn_insertion = Button(ax_insertion, "Insertion")
+        self.btn_merge     = Button(ax_merge,     "Merge")
+        self.btn_quick     = Button(ax_quick,     "Quick")
 
-        btn_pause = Button(ax_pause,"Pause")
-        btn_resume = Button(ax_resume,"Resume")
-        btn_reset = Button(ax_reset,"Reset")
+        self.btn_pause  = Button(ax_pause,  "Pause")
+        self.btn_resume = Button(ax_resume, "Resume")
+        self.btn_reset  = Button(ax_reset,  "Reset")
 
-        btn_bubble.on_clicked(lambda event: self.start("Bubble"))
-        btn_insertion.on_clicked(lambda event: self.start("Insertion"))
-        btn_merge.on_clicked(lambda event: self.start("Merge"))
-        btn_quick.on_clicked(lambda event: self.start("Quick"))
+        self.btn_bubble.on_clicked(lambda event:    self.start("Bubble"))
+        self.btn_insertion.on_clicked(lambda event: self.start("Insertion"))
+        self.btn_merge.on_clicked(lambda event:     self.start("Merge"))
+        self.btn_quick.on_clicked(lambda event:     self.start("Quick"))
 
-        btn_pause.on_clicked(self.pause)
-        btn_resume.on_clicked(self.resume)
-        btn_reset.on_clicked(self.reset)
+        self.btn_pause.on_clicked(self.pause)
+        self.btn_resume.on_clicked(self.resume)
+        self.btn_reset.on_clicked(self.reset)
 
-        ax_speed = plt.axes([0.25,0.05,0.5,0.03])
+        ax_speed = plt.axes([0.25, 0.05, 0.5, 0.03])
 
-        slider = Slider(ax_speed,"Speed",10,500,valinit=self.speed)
+        self.slider = Slider(ax_speed, "Speed", 10, 500, valinit=self.speed)
 
-        slider.on_changed(self.change_speed)
+        self.slider.on_changed(self.change_speed)
 
     # -----------------------
 
