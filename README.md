@@ -73,7 +73,7 @@ algorithm_visualizer
 Clone the repository:
 
 ```
-git clone https://github.com/YOUR_USERNAME/algorithm_visualizer.git
+git clone https://github.com/Raslan07/Algorithms-Visualizer
 ```
 
 Navigate to the project folder:
