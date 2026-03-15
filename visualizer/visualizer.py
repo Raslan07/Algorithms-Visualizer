@@ -33,6 +33,7 @@ class Visualizer:
         }
 
         self.current_algorithm = "Bubble"
+
         self.generator = self.algorithms[self.current_algorithm](self.array)
 
         self.fig, self.ax = plt.subplots()
@@ -41,16 +42,19 @@ class Visualizer:
 
         self.bars = self.ax.bar(range(len(self.array)), self.array)
 
-        self.title = self.ax.set_title("Bubble Sort")
-
         self.info_text = self.ax.text(
-            0.02,
-            0.95,
-            "",
-            transform=self.ax.transAxes
+            0.02, 0.95, "", transform=self.ax.transAxes
         )
 
+        self.ax.set_title("Bubble Sort")
+
         self.create_controls()
+
+        self.create_animation()
+
+    # -----------------------
+
+    def create_animation(self):
 
         self.ani = animation.FuncAnimation(
             self.fig,
@@ -59,6 +63,8 @@ class Visualizer:
             interval=self.speed,
             repeat=False
         )
+
+    # -----------------------
 
     def update(self, data):
 
@@ -75,6 +81,8 @@ class Visualizer:
 
         return self.bars
 
+    # -----------------------
+
     def start(self, name):
 
         self.current_algorithm = name
@@ -83,19 +91,22 @@ class Visualizer:
 
         self.ax.set_title(f"{name} Sort")
 
+        # recreate animation (THIS FIXES BUTTONS)
         self.ani.event_source.stop()
 
-        self.ani.frame_seq = self.generator
-
-        self.ani.event_source.start()
+        self.create_animation()
 
         plt.draw()
+
+    # -----------------------
 
     def pause(self, event):
         self.ani.event_source.stop()
 
     def resume(self, event):
         self.ani.event_source.start()
+
+    # -----------------------
 
     def reset(self, event):
 
@@ -106,9 +117,11 @@ class Visualizer:
 
         self.generator = self.algorithms[self.current_algorithm](self.array)
 
-        self.ani.frame_seq = self.generator
+        self.create_animation()
 
         plt.draw()
+
+    # -----------------------
 
     def change_speed(self, val):
 
@@ -116,25 +129,27 @@ class Visualizer:
 
         self.ani.event_source.interval = self.speed
 
+    # -----------------------
+
     def create_controls(self):
 
-        ax_bubble = plt.axes([0.05, 0.25, 0.15, 0.05])
-        ax_insertion = plt.axes([0.25, 0.25, 0.15, 0.05])
-        ax_merge = plt.axes([0.45, 0.25, 0.15, 0.05])
-        ax_quick = plt.axes([0.65, 0.25, 0.15, 0.05])
+        ax_bubble = plt.axes([0.05,0.25,0.15,0.05])
+        ax_insertion = plt.axes([0.25,0.25,0.15,0.05])
+        ax_merge = plt.axes([0.45,0.25,0.15,0.05])
+        ax_quick = plt.axes([0.65,0.25,0.15,0.05])
 
-        ax_pause = plt.axes([0.20, 0.15, 0.15, 0.05])
-        ax_resume = plt.axes([0.40, 0.15, 0.15, 0.05])
-        ax_reset = plt.axes([0.60, 0.15, 0.15, 0.05])
+        ax_pause = plt.axes([0.20,0.15,0.15,0.05])
+        ax_resume = plt.axes([0.40,0.15,0.15,0.05])
+        ax_reset = plt.axes([0.60,0.15,0.15,0.05])
 
-        btn_bubble = Button(ax_bubble, "Bubble")
-        btn_insertion = Button(ax_insertion, "Insertion")
-        btn_merge = Button(ax_merge, "Merge")
-        btn_quick = Button(ax_quick, "Quick")
+        btn_bubble = Button(ax_bubble,"Bubble")
+        btn_insertion = Button(ax_insertion,"Insertion")
+        btn_merge = Button(ax_merge,"Merge")
+        btn_quick = Button(ax_quick,"Quick")
 
-        btn_pause = Button(ax_pause, "Pause")
-        btn_resume = Button(ax_resume, "Resume")
-        btn_reset = Button(ax_reset, "Reset")
+        btn_pause = Button(ax_pause,"Pause")
+        btn_resume = Button(ax_resume,"Resume")
+        btn_reset = Button(ax_reset,"Reset")
 
         btn_bubble.on_clicked(lambda event: self.start("Bubble"))
         btn_insertion.on_clicked(lambda event: self.start("Insertion"))
@@ -145,12 +160,13 @@ class Visualizer:
         btn_resume.on_clicked(self.resume)
         btn_reset.on_clicked(self.reset)
 
-        ax_speed = plt.axes([0.25, 0.05, 0.50, 0.03])
+        ax_speed = plt.axes([0.25,0.05,0.5,0.03])
 
-        slider = Slider(ax_speed, "Speed", 10, 500, valinit=self.speed)
+        slider = Slider(ax_speed,"Speed",10,500,valinit=self.speed)
 
         slider.on_changed(self.change_speed)
 
-    def show(self):
+    # -----------------------
 
+    def show(self):
         plt.show()
